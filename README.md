@@ -1,5 +1,5 @@
 <p align="center">
-    <img src="https://raw.githubusercontent.com/cahian/TwoChatGPTs/main/public/readme.png" alt="TwoChatGPTs README image">
+    <img width="80%" src="https://raw.githubusercontent.com/cahian/TwoChatGPTs/main/public/readme.png" alt="TwoChatGPTs README image">
 </p>
 <h1 align="center">TwoChatGPTs</h1>
 
