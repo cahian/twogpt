@@ -1,3 +1,4 @@
+import sys
 from enum import Enum
 from os import getenv
 from pprint import pprint
@@ -7,17 +8,23 @@ import openai
 from .config import config
 
 openai.my_api_key = getenv("OPENAI_API_KEY")
-INDENT = ' '
+INDENT = '   '
 
 
 def optinput(prompt, test, cast):
     while True:
         try:
             string = input(prompt)
-            if test(string):
+            if test(cast(string)):
                 return cast(string)
+        except KeyboardInterrupt:
+            sys.exit()
         except:
             pass
+
+
+def separate():
+    print("")
 
 
 class TwoMessages:
@@ -60,17 +67,29 @@ class TwoMessages:
 def main():
     print("Do you want a predefined prompt or a custom one?")
     option = optinput("Enter 1 for predefined and 2 for custom: ",
-            lambda s: s in ["1", "2"], int)
+            lambda n: n in [1, 2], int)
+    separate()
 
     match option:
-        1:
-            for index, sysprompt in enumerate(config["system_prompts"]):
-                print(f"Initial system prompt {index + 1}:")
-                print(f"{INDENT}ChatGPT1: {sysprompt['ChatGPT1']}")
-                print(f"{INDENT}ChatGPT2: {sysprompt['ChatGPT2']}")
-        2:
+        case 1:
+            iniprompts = config["initial_prompts"]
+            inilength = len(iniprompts)
+            for index, iniprompt in enumerate(iniprompts):
+                print(f"Predefined prompt {index + 1}:")
+                print(f"{INDENT}ChatGPT1: {iniprompt['ChatGPT1']}")
+                print(f"{INDENT}ChatGPT2: {iniprompt['ChatGPT2']}")
+            separate()
+
+            print("Which predefined initial prompt do you want?")
+            option2 = optinput(f"Enter a predefined prompt number from 1 to {inilength}: ",
+                    lambda n: n >= 1 and n <= inilength, int)
+
+            iniprompts = iniprompts[option2 - 1]
+            iniprompt1 = iniprompts["ChatGPT1"]
+            iniprompt2 = iniprompts["ChatGPT2"]
+        case 2:
             iniprompt1 = input("Enter ChatGPT1 initial prompt: ")
-            iniprompt1 = input("Enter ChatGPT1 initial prompt: ")
+            iniprompt2 = input("Enter ChatGPT2 initial prompt: ")
 
 
     # while True:
