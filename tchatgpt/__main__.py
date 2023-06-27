@@ -7,7 +7,17 @@ import openai
 from .config import config
 
 openai.my_api_key = getenv("OPENAI_API_KEY")
-INDENT = '   '
+INDENT = ' '
+
+
+def optinput(prompt, test, cast):
+    while True:
+        try:
+            string = input(prompt)
+            if test(string):
+                return cast(string)
+        except:
+            pass
 
 
 class TwoMessages:
@@ -48,10 +58,19 @@ class TwoMessages:
 
 
 def main():
-    for index, sysprompt in enumerate(config["system_prompts"]):
-        print(f"Initial system prompt {index + 1}:")
-        print(f"{INDENT}ChatGPT1: {sysprompt['ChatGPT1']}")
-        print(f"{INDENT}ChatGPT2: {sysprompt['ChatGPT2']}")
+    print("Do you want a predefined prompt or a custom one?")
+    option = optinput("Enter 1 for predefined and 2 for custom: ",
+            lambda s: s in ["1", "2"], int)
+
+    match option:
+        1:
+            for index, sysprompt in enumerate(config["system_prompts"]):
+                print(f"Initial system prompt {index + 1}:")
+                print(f"{INDENT}ChatGPT1: {sysprompt['ChatGPT1']}")
+                print(f"{INDENT}ChatGPT2: {sysprompt['ChatGPT2']}")
+        2:
+            iniprompt1 = input("Enter ChatGPT1 initial prompt: ")
+            iniprompt1 = input("Enter ChatGPT1 initial prompt: ")
 
 
     # while True:
