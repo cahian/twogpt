@@ -7,6 +7,7 @@ import openai
 from .config import config
 
 openai.my_api_key = getenv("OPENAI_API_KEY")
+INDENT = '   '
 
 
 class TwoMessages:
@@ -47,9 +48,13 @@ class TwoMessages:
 
 
 def main():
-    print(config)
-    # while True:
+    for index, sysprompt in enumerate(config["system_prompts"]):
+        print(f"Initial system prompt {index + 1}:")
+        print(f"{INDENT}ChatGPT1: {sysprompt['ChatGPT1']}")
+        print(f"{INDENT}ChatGPT2: {sysprompt['ChatGPT2']}")
 
+
+    # while True:
     # while True:
     #     message = input("User: ")
     #     if message:
