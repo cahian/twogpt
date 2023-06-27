@@ -28,27 +28,36 @@ def separate():
 
 
 class TwoMessages:
-    def __init__(sysmsg1, sysmsg2):
+    def __init__(self, sysmsg1, sysmsg2):
         self._msgs = []
         self._add("system", sysmsg1)
+        self._mode = 1
         self._sysmsg1 = sysmsg1
         self._sysmsg2 = sysmsg2
 
-    def add_user(content):
+    def get(self):
+        return self._msgs
+
+    def get_mode(self):
+        return self._mode
+
+    def add_user(self, content):
         self._add("user", content)
 
-    def add_assistant(content):
+    def add_assistant(self, content):
         self._add("assistant", content)
 
-    def swap_roles():
+    def swap_roles(self):
         msgs_iter = iter(self._msgs)
         new_msgs = []
 
         sysmsg = next(msgs_iter)
         match sysmsg:
             case self._sysmsg1:
+                self._mode = 2
                 sysmsg = self._sysmsg2
             case self._sysmsg2:
+                self._mode = 1
                 sysmsg = self._sysmsg1
         new_msgs.append(sysmsg)
 
@@ -60,7 +69,7 @@ class TwoMessages:
                     msg["role"] = "user"
             new_msgs.append(msg)
 
-    def _add(role, content):
+    def _add(self, role, content):
         self._msgs.append({"role": role, "content": content})
 
 
@@ -90,9 +99,33 @@ def main():
         case 2:
             iniprompt1 = input("Enter ChatGPT1 initial prompt: ")
             iniprompt2 = input("Enter ChatGPT2 initial prompt: ")
+    separate()
 
-
+    twomsgs = TwoMessages(iniprompt1, iniprompt2)
+    while True:
+        chat = openai.ChatCompletion.create(
+            model="gpt-3.5-turbo",
+            messages=twomsgs.get()
+        )
+        reply = chat.choices[0].message.content
+        print(f"ChatGPT{twomsgs.get_mode()}: {reply}")
+        twomsgs.add_assistant(reply)
+        twomsgs.swap_roles()
+        input("Press enter to continue...")
     # while True:
+    #     message = input("User: ")
+    #     if message:
+    #         messages.append(
+    #             {"role": "user", "content": message},
+    #         )
+    #         chat = openai.ChatCompletion.create(
+    #             model="gpt-3.5-turbo",
+    #             messages=messages
+    #         )
+    #     reply = chat.choices[0].message.content
+    #     print(f"Assistant: {reply}")
+    #     messages.append({"role": "assistant", "content": reply})
+
     # while True:
     #     message = input("User: ")
     #     if message:
