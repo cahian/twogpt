@@ -3,20 +3,26 @@ from pprint import pprint
 
 import openai
 
-
 openai.my_api_key = getenv("OPENAI_API_KEY")
-completion = openai.ChatCompletion.create(
-    model="gpt-3.5-turbo",
-    messages=[
-        {"role": "system", "content": "You are a helpful assistant."},
-        {"role": "user", "content": "Hello!"}
-    ]
-)
+messages = []
 
 
 def main():
-    pprint(completion)
+    while True:
+        message = input("User: ")
+        if message:
+            messages.append(
+                {"role": "user", "content": message},
+            )
+            chat = openai.ChatCompletion.create(
+                model="gpt-3.5-turbo",
+            messages=messages
+            )
+        reply = chat.choices[0].message.content
+        print(f"Assistant: {reply}")
+        messages.append({"role": "assistant", "content": reply})
 
 
 if __name__ == "__main__":
     main()
+
