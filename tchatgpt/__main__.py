@@ -4,6 +4,7 @@ from os import getenv
 from pprint import pprint
 
 import openai
+from colorama import Fore, Back, Style
 
 from .config import config
 
@@ -52,13 +53,12 @@ class TwoMessages:
         new_msgs = []
 
         sysmsg = next(msgs_iter)
-        match sysmsg:
+        self._mode = 2 if self._mode == 1 else 1
+        match sysmsg["content"]:
             case self._sysmsg1:
-                self._mode = 2
-                sysmsg = self._sysmsg2
+                sysmsg["content"] = self._sysmsg2
             case self._sysmsg2:
-                self._mode = 1
-                sysmsg = self._sysmsg1
+                sysmsg["content"] = self._sysmsg1
         new_msgs.append(sysmsg)
 
         for msg in msgs_iter:
@@ -85,8 +85,8 @@ def main():
             inilength = len(iniprompts)
             for index, iniprompt in enumerate(iniprompts):
                 print(f"Predefined prompt {index + 1}:")
-                print(f"{INDENT}ChatGPT1: {iniprompt['ChatGPT1']}")
-                print(f"{INDENT}ChatGPT2: {iniprompt['ChatGPT2']}")
+                print(f"{INDENT}{Fore.BLUE}ChatGPT1{Fore.RESET}: {iniprompt['ChatGPT1']}")
+                print(f"{INDENT}{Fore.RED}ChatGPT2{Fore.RESET}: {iniprompt['ChatGPT2']}")
             separate()
 
             print("Which predefined initial prompt do you want?")
@@ -97,50 +97,27 @@ def main():
             iniprompt1 = iniprompts["ChatGPT1"]
             iniprompt2 = iniprompts["ChatGPT2"]
         case 2:
-            iniprompt1 = input("Enter ChatGPT1 initial prompt: ")
-            iniprompt2 = input("Enter ChatGPT2 initial prompt: ")
+            iniprompt1 = input("Enter {Fore.BLUE}ChatGPT1{Fore.RESET}initial prompt: ")
+            iniprompt2 = input("Enter {Fore.RED}ChatGPT2{Fore.RESET}initial prompt: ")
     separate()
 
     twomsgs = TwoMessages(iniprompt1, iniprompt2)
     while True:
         chat = openai.ChatCompletion.create(
             model="gpt-3.5-turbo",
-            messages=twomsgs.get()
+            messages=twomsgs.get(),
+            temperature=0.8
         )
         reply = chat.choices[0].message.content
-        print(f"ChatGPT{twomsgs.get_mode()}: {reply}")
+        print(f"{Fore.BLUE if twomsgs.get_mode() == 1 else Fore.RED}ChatGPT{twomsgs.get_mode()}{Fore.RESET}: {reply}")
         twomsgs.add_assistant(reply)
         twomsgs.swap_roles()
-        input("Press enter to continue...")
-    # while True:
-    #     message = input("User: ")
-    #     if message:
-    #         messages.append(
-    #             {"role": "user", "content": message},
-    #         )
-    #         chat = openai.ChatCompletion.create(
-    #             model="gpt-3.5-turbo",
-    #             messages=messages
-    #         )
-    #     reply = chat.choices[0].message.content
-    #     print(f"Assistant: {reply}")
-    #     messages.append({"role": "assistant", "content": reply})
-
-    # while True:
-    #     message = input("User: ")
-    #     if message:
-    #         messages.append(
-    #             {"role": "user", "content": message},
-    #         )
-    #         chat = openai.ChatCompletion.create(
-    #             model="gpt-3.5-turbo",
-    #             messages=messages
-    #         )
-    #     reply = chat.choices[0].message.content
-    #     print(f"Assistant: {reply}")
-    #     messages.append({"role": "assistant", "content": reply})
-
+        input("")
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except KeyboardInterrupt:
+        print()
+        sys.exit()
 
